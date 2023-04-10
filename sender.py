@@ -13,9 +13,6 @@ er = 0
 
 es, d, ns = rsa.generate_keys()
 
-# es = 4072897
-# d = -25608767
-# ns = 55974173
 
 def initiate_connection():
     # Connect to the server
@@ -24,9 +21,10 @@ def initiate_connection():
     sock.listen()
     return sock
 
+
 def send_message(receiver):
     # Send the message through the socket
-    #receiver, addr = sock.accept()
+    # first get the n and e from the receiver
     nr = int(receiver.recv(1024).decode())
     er = int(receiver.recv(1024).decode())
     while True:
@@ -42,7 +40,7 @@ def send_message(receiver):
 
 def receive_message(receiver):
     # Receive the message from the socket
-    #receiver, addr = sock.accept()
+    # first send the n and e to the receiver
     receiver.send(str(ns).encode())
     receiver.send(str(es).encode())
     while True: 
@@ -70,43 +68,10 @@ if __name__ == "__main__":
     sock = initiate_connection()
     receiver, addr = sock.accept()
 
-    # first get the n and e from the receiver
-    # nr = int(receiver.recv(1024).decode())
-    # er = int(receiver.recv(1024).decode())
 
-    # send the n and e to the receiver
-    # receiver.send(ns.__str__().encode())
-    # receiver.send(es.__str__().encode())
-    
-    # TODO: apply the encryption function to the message before sending it
     send_thread = threading.Thread(target=send_message, args=(receiver, ))
     send_thread.start()
     
     
     receive_thread = threading.Thread(target=receive_message, args=(receiver, )) # to keep the return value of the function, 
     receive_thread.start()
-    
-    
-
-    # wait for the return value of the function
-    #send_thread.join()
-
-    # wait for the return value of the function
-    #receive_thread.join()
-    #received_message = receive_thread.result()
-    
-
- 
-
-
-    
-
-
-    
-    # if I want to send a message to the server
-    # take the message from the user
-    
-
-
-
-
