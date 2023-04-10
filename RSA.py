@@ -138,13 +138,18 @@ def _generate_keys(p, q):
     return e, d, n
 
 
-def generate_pq_for_n_bits():
+def generate_pq_for_n_bits(large_n_bits):
     # if the file already exists, delete it
     try:
         os.remove("n_e_d.txt")
     except OSError:
         pass
-    for bit in (8, 16, 32, 64):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
+    n_bits = []
+    if(large_n_bits == True):
+        n_bits = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
+    else:
+        n_bits = [8, 16, 32, 64]
+    for bit in n_bits:  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
         p = 4
         q = 4
         mini = 2 ** (bit - 1)
@@ -159,7 +164,7 @@ def generate_pq_for_n_bits():
             f.write("n: " + str(n) + " e: " + str(e) + " d: " + str(d) + " bit: " + str(bit) + "\n")
 
 
-def plot_to_analyze(filepath, title):
+def plot_to_analyze(filepath, title, time_unit):
     # plot the data in the file
     with open(filepath, "r") as f:
         data = f.readlines()
@@ -167,9 +172,15 @@ def plot_to_analyze(filepath, title):
         y = []
         for line in data:
             x.append(int(line.split(" ")[1]))
-            y.append((10**3)*float(line.split(" ")[-1]))
+            if time_unit == "s":
+                y.append(float(line.split(" ")[-1]))
+            else:
+                y.append((10.0**3)*float(line.split(" ")[-1]))
         plt.plot(x, y)
         plt.xlabel("n bits")
-        plt.ylabel("time (ms)")
+        if(time_unit == "s"):
+            plt.ylabel("time (s)")
+        else:
+            plt.ylabel("time (ms)")
         plt.title(title)
         plt.show()

@@ -20,11 +20,12 @@ def initiate_connection():
     return sock
 
 
-def send_message(sock):
+def send_message(sock, semaphore):
     # Send the message through the socket
     # receive es and ns from the server
     ns = int(sock.recv(1024).decode())
     es = int(sock.recv(1024).decode())
+    semaphore.set()
     while True:
         message = input()
         toSend = rsa.encode_encrypt_message(message, es, ns)
@@ -37,11 +38,13 @@ def send_message(sock):
         #sock.send(message)
 
 
-def receive_message(sock):
+def receive_message(sock, semaphore):
     # Receive the message from the socket
     # send e and n to the server
     sock.send(str(nr).encode())
     sock.send(str(er).encode())
+    while(semaphore.is_set() == False):
+        continue
     while True:
         cipher = sock.recv(1024)
         cipher = cipher.decode()
@@ -64,12 +67,15 @@ if __name__ == "__main__":
     print('the generated keys are: e = ', er, " d = ",  d, " nr = ", nr)
     sock = initiate_connection()
 
-    
+    # semaphore = threading.Semaphore(1)
+    semaphore = threading.Event()
+    semaphore.clear()
+
     # TODO: apply the encryption function to the message before sending it
-    send_thread = threading.Thread(target=send_message, args=(sock,))
+    send_thread = threading.Thread(target=send_message, args=(sock, semaphore, ))
     send_thread.start()
     
 
-    receive_thread = threading.Thread(target=receive_message, args=(sock, )) # to keep the return value of the function, 
+    receive_thread = threading.Thread(target=receive_message, args=(sock, semaphore, )) # to keep the return value of the function, 
     receive_thread.start()
     
