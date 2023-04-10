@@ -36,9 +36,9 @@ def generate_keys():
     p = 4
     q = 4
     while(sp.isprime(p) == False):
-        p = rd.randint(757, 12345)  # best min number for p & q to be secure enough --> 1048576
+        p = rd.randint(69343956, 69343956*1000000)  # best min number for p & q to be secure enough --> 1048576
     while(sp.isprime(q) == False or p == q):
-        q = rd.randint(757, 12345)
+        q = rd.randint(69343956, 69343956*1000000)
     n = p * q
     phi = (p - 1) * (q - 1)
     
