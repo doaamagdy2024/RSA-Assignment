@@ -2,6 +2,10 @@ import math
 import random as rd
 import sympy as sp
 import numpy as np
+import os
+import time
+import matplotlib.pyplot as plt
+
 
 
 def multiplicative_inverse(e, phi):
@@ -50,19 +54,6 @@ def generate_keys():
     # calculate d such that d * e = 1 mod phi
     d = multiplicative_inverse(e, phi) # the private key is (d, n)
     return e, d, n
-
-
-def convert_to_int(message):
-    # Convert the message to an integer
-    message = int.from_bytes(message.encode(), byteorder='big')
-    return message
-
-
-def convert_to_string(message):
-    # Convert the integer to a string
-    message = message.to_bytes((message.bit_length() + 7) // 8, byteorder='big')
-    message = message.decode()
-    return message
 
 
 def encrypt(message, e, n):
@@ -123,3 +114,62 @@ def decode_decrypt_message(encoded_message, d, n):
                 message = chr(ord('a') + num - 10) + message
     return message
 
+
+# the following functions are used to analyze the speed of the encryption and decryption algorithms
+# and to analyze the security of the encryption algorithm
+
+
+def factorize_n(n):
+    # get the prime factorizatoin of n
+    a = sp.factorint(n)
+    return a
+
+
+def _generate_keys(p, q):
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    
+    # select integer e that is relatively prime to n and ranges 1 < e < n
+    e = phi # initial value so that the loop runs at least once
+    while(math.gcd(e, phi) != 1):
+        e = rd.randint(2, phi)  # the public key is (e, n)
+    # calculate d such that d * e = 1 mod phi
+    d = multiplicative_inverse(e, phi) # the private key is (d, n)
+    return e, d, n
+
+
+def generate_pq_for_n_bits():
+    # if the file already exists, delete it
+    try:
+        os.remove("n_e_d.txt")
+    except OSError:
+        pass
+    for bit in (8, 16, 32, 64):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
+        p = 4
+        q = 4
+        mini = 2 ** (bit - 1)
+        while(sp.isprime(p) == False or p < mini):
+            p = rd.getrandbits(bit)
+        while(sp.isprime(q) == False or p == q or q < mini):
+            q = rd.getrandbits(bit)
+        
+        e, d, n = _generate_keys(p, q)
+        # write in the file the p, q, n in addition to the bit and the private key d
+        with open("n_e_d.txt", "a") as f:
+            f.write("n: " + str(n) + " e: " + str(e) + " d: " + str(d) + " bit: " + str(bit) + "\n")
+
+
+def plot_to_analyze(filepath, title):
+    # plot the data in the file
+    with open(filepath, "r") as f:
+        data = f.readlines()
+        x = []
+        y = []
+        for line in data:
+            x.append(int(line.split(" ")[1]))
+            y.append((10**3)*float(line.split(" ")[-1]))
+        plt.plot(x, y)
+        plt.xlabel("n bits")
+        plt.ylabel("time (ms)")
+        plt.title(title)
+        plt.show()
