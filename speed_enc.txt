@@ -1,0 +1,4 @@
+bit: 8 time_enc: 0.0
+bit: 16 time_enc: 0.0
+bit: 32 time_enc: 0.0
+bit: 64 time_enc: 0.0009958744049072266
