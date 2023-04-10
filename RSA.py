@@ -33,19 +33,19 @@ def multiplicative_inverse(e, phi):
 
 
 def generate_keys():
-    p = 2
-    q = 2
+    p = 4
+    q = 4
     while(sp.isprime(p) == False):
-        p = rd.randint(11, 12345)  # best min number for p & q to be secure enough --> 1048576
-    while(sp.isprime(q) == False & p != q):
-        q = rd.randint(11, 12345)
+        p = rd.randint(757, 12345)  # best min number for p & q to be secure enough --> 1048576
+    while(sp.isprime(q) == False or p == q):
+        q = rd.randint(757, 12345)
     n = p * q
     phi = (p - 1) * (q - 1)
     
     # select integer e that is relatively prime to n and ranges 1 < e < n
-    e = p # initial value so that the loop runs at least once
-    while(math.gcd(e, n) != 1):
-        e = rd.randint(2, n)  # the public key is (e, n)
+    e = phi # initial value so that the loop runs at least once
+    while(math.gcd(e, phi) != 1):
+        e = rd.randint(2, phi)  # the public key is (e, n)
     
     # calculate d such that d * e = 1 mod phi
     d = multiplicative_inverse(e, phi) # the private key is (d, n)
@@ -66,24 +66,21 @@ def convert_to_string(message):
 
 
 def encrypt(message, e, n):
-    message_int = convert_to_int(message)
-    c = pow(message_int, e, n)
+    c = pow(message, e, n)
     return c
 
 
 def decrypt(cipher, d, n):
-    m = pow(cipher, d, n)
-    message = convert_to_string(m)
+    message = pow(cipher, d, n)  
     return message
 
 
-def encode_message(message):
+def encode_encrypt_message(message, e, n):
     # convert the message to an integer
-    int_message = 0
+    encoded_message = []
     group = 0
     num = 0
     counter = 4
-    i = 0
     for char in message:
         #i += 1
         if(char >= '0' and char <= '9'):
@@ -95,18 +92,34 @@ def encode_message(message):
         group += num * (37 ** counter)
         counter -= 1
         if counter < 0:
+            encoded_message.append(encrypt(group, e, n))
             # concatenate the group to the message
-            int_message = int(int_message.__str__() + group.__str__())
             group = 0
             counter = 4
-        #print (i, " ", char, " ", num, " ", group, " ", int_message)
     
     if counter < 4:
         while(counter != -1 ):
             group += 36 * (37 ** counter)
             counter -= 1
-        int_message = int(int_message.__str__() + group.__str__())
+        encoded_message.append(encrypt(group, e, n))
 
-    return int_message
+    #encoded_message.__str__()
+    return encoded_message
 
+
+def decode_decrypt_message(encoded_message, d, n):
+    message = ""
+    encoded_message[0:] = encoded_message[0:][::-1]
+    for group in encoded_message:
+        group = decrypt(group, d, n)
+        for i in range(5):
+            num = group % 37
+            group = group // 37
+            if(num == 36):
+                message = ' ' + message
+            elif(num < 10):
+                message = chr(ord('0') + num) + message
+            else:
+                message = chr(ord('a') + num - 10) + message
+    return message
 
