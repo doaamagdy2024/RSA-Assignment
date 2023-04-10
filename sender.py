@@ -1,6 +1,7 @@
 import socket
 import threading
 import math
+import RSA as rsa
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 9090        # The port used by the server
@@ -26,9 +27,9 @@ def receive_message(receiver):
     #receiver, addr = sock.accept()
     while True: 
         message = receiver.recv(1024)
+        # TODO: apply the decryption function to the received message
         print(message.decode())
         # message = sock.recv(1024)
-    return message
 
 
     
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     # wait for the return value of the function
     #receive_thread.join()
     #received_message = receive_thread.result()
-    # TODO: apply the decryption function to the received message
+    
 
  
 

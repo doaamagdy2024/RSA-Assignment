@@ -76,3 +76,37 @@ def decrypt(cipher, d, n):
     message = convert_to_string(m)
     return message
 
+
+def encode_message(message):
+    # convert the message to an integer
+    int_message = 0
+    group = 0
+    num = 0
+    counter = 4
+    i = 0
+    for char in message:
+        #i += 1
+        if(char >= '0' and char <= '9'):
+            num = ord(char) - ord('0')  # ord('0') = 48
+        elif(char >= 'a' and char <= 'z'):
+            num = ord(char) - ord('a') + 10 # ord('a') = 97
+        else:
+            num = 36  # Convert any extra characters to spaces as specified.
+        group += num * (37 ** counter)
+        counter -= 1
+        if counter < 0:
+            # concatenate the group to the message
+            int_message = int(int_message.__str__() + group.__str__())
+            group = 0
+            counter = 4
+        #print (i, " ", char, " ", num, " ", group, " ", int_message)
+    
+    if counter < 4:
+        while(counter != -1 ):
+            group += 36 * (37 ** counter)
+            counter -= 1
+        int_message = int(int_message.__str__() + group.__str__())
+
+    return int_message
+
+

@@ -24,6 +24,7 @@ def receive_message(sock):
     # Receive the message from the socket
     while True:
         message = sock.recv(1024)
+        print("message before decoding: ", message)
         print(message.decode())
 
     return message
