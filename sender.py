@@ -2,10 +2,15 @@ import socket
 import threading
 import math
 import RSA as rsa
+import receiver as rc
+
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 9090        # The port used by the server
 
+global es, ns
+
+es, d, ns = rsa.generate_keys()
 
 def initiate_connection():
     # Connect to the server
@@ -18,18 +23,27 @@ def send_message(receiver):
     # Send the message through the socket
     #receiver, addr = sock.accept()
     while True:
-        toSend = input()
+        msg = input()
+        toSend = rsa.encode_encrypt_message(msg, rc.er, rc.nr)
+        for i in range(len(toSend)):
+            toSend[i] = toSend[i].__str__()
+        toSend = "".join(toSend)
         receiver.send(toSend.encode())
-        #sock.send(message)
+
 
 def receive_message(receiver):
     # Receive the message from the socket
     #receiver, addr = sock.accept()
     while True: 
-        message = receiver.recv(1024)
+        cipher = receiver.recv(1024)
+        cipher = cipher.decode()
+        cipher = cipher.split(" ")
+        print("message after splitting: ", cipher)
+        for i in range(len(cipher)):
+            cipher[i] = int(cipher[i])
+        message = rsa.decode_decrypt_message(cipher, d, ns)
         # TODO: apply the decryption function to the received message
-        print(message.decode())
-        # message = sock.recv(1024)
+        print(message)
 
 
     
