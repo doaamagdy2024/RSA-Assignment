@@ -3,7 +3,7 @@ RSA assignment in cryptography college course
 
 # How to run the program
 
-## Lets begin by the chat app
+## Let's begin by the chat app
 1- open a terminal and split it into 2
 2- run the sender first in one terminal using the command --> python sender.py
 3- run the receiver in the other terminal using the command --> python receiver.py
