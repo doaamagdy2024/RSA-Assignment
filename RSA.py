@@ -114,6 +114,23 @@ def decode_decrypt_message(encoded_message, d, n):
                 message = chr(ord('a') + num - 10) + message
     return message
 
+def decode_decrypt_group_message(group, d, n):
+    message = ""
+    #encoded_message[0:] = encoded_message[0:][::-1]
+    #for group in encoded_message:
+    group = decrypt(group, d, n)
+    for i in range(5):
+        num = group % 37
+        group = group // 37
+        if(num == 36):
+            message = ' ' + message
+        elif(num < 10):
+            message = chr(ord('0') + num) + message
+        else:
+            message = chr(ord('a') + num - 10) + message
+    return message
+
+
 
 # the following functions are used to analyze the speed of the encryption and decryption algorithms
 # and to analyze the security of the encryption algorithm
@@ -144,12 +161,18 @@ def generate_pq_for_n_bits(large_n_bits):
         os.remove("n_e_d.txt")
     except OSError:
         pass
-    n_bits = []
+    #n_bits = []
+    n_bits_min = 0
+    n_bits_max = 0
     if(large_n_bits == True):
-        n_bits = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
+        n_bits_min = 27
+        n_bits_max = 512
+        #n_bits = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
     else:
-        n_bits = [8, 16, 32, 64]
-    for bit in n_bits:  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
+        n_bits_min = 27
+        n_bits_max = 64
+        #n_bits = [8, 16, 32, 64]
+    for bit in range(n_bits_min, n_bits_max, 2):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
         p = 4
         q = 4
         mini = 2 ** (bit - 1)
