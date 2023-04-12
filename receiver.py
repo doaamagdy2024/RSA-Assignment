@@ -2,6 +2,7 @@ import socket
 import threading
 import math
 import RSA as rsa
+import time
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 9090        # The port used by the server
@@ -22,7 +23,7 @@ def initiate_connection():
 
 def send_message(sock, semaphore):
     # Send the message through the socket
-    # receive es and ns from the server
+    # but first receive es and ns from the server to encrypt the message with them
     ns = int(sock.recv(1024).decode())
     es = int(sock.recv(1024).decode())
     semaphore.set()
@@ -31,16 +32,16 @@ def send_message(sock, semaphore):
         toSend = rsa.encode_encrypt_message(message, es, ns)
         for i in range(len(toSend)):
             toSend[i] = toSend[i].__str__()
-        toSend = " ".join(toSend)
-        print("encrypt using e = ", es, " and n = ", ns)
+            sock.send(toSend[i].encode())
+            time.sleep(0.001)
+        # then send new line
+        sock.send("\n".encode())
 
-        sock.send(toSend.encode())
-        #sock.send(message)
 
 
 def receive_message(sock, semaphore):
     # Receive the message from the socket
-    # send e and n to the server
+    # send e and n to the server to encrypt the message with them
     sock.send(str(nr).encode())
     sock.send(str(er).encode())
     while(semaphore.is_set() == False):
@@ -48,13 +49,13 @@ def receive_message(sock, semaphore):
     while True:
         cipher = sock.recv(1024)
         cipher = cipher.decode()
-        cipher = cipher.split(" ")
-        print("message after splitting: ", cipher)
-        for i in range(len(cipher)):
-            cipher[i] = int(cipher[i])
-        print("cipher to int: ", cipher)
-        message = rsa.decode_decrypt_message(cipher, d, nr)
-        print("decrypt using d = : ",d, " and n = ", nr)
+        message = ""
+        while(cipher != '\n'):
+            cipher = int(cipher)
+            message += rsa.decode_decrypt_group_message(cipher, d, nr)
+            cipher = sock.recv(1024)
+            cipher = cipher.decode()
+
         print(message)
 
 
@@ -71,7 +72,6 @@ if __name__ == "__main__":
     semaphore = threading.Event()
     semaphore.clear()
 
-    # TODO: apply the encryption function to the message before sending it
     send_thread = threading.Thread(target=send_message, args=(sock, semaphore, ))
     send_thread.start()
     

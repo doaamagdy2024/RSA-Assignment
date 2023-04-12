@@ -2,6 +2,7 @@ import socket
 import threading
 import math
 import RSA as rsa
+import time
 
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -33,10 +34,11 @@ def send_message(receiver, semaphore):
         toSend = rsa.encode_encrypt_message(msg, er, nr)
         for i in range(len(toSend)):
             toSend[i] = toSend[i].__str__()
-        toSend = " ".join(toSend)
-        print("toSend: ", toSend)
-        print("encrypt using e = ", er, " and n = ", nr)
-        receiver.send(toSend.encode())
+            receiver.send(toSend[i].encode())
+            time.sleep(0.001)
+        # then send new line to indicate the message ends
+        receiver.send("\n".encode())
+
 
 
 def receive_message(receiver, semaphore):
@@ -49,14 +51,13 @@ def receive_message(receiver, semaphore):
     while True: 
         cipher = receiver.recv(1024)
         cipher = cipher.decode()
-        cipher = cipher.split(" ")
-        print("message after splitting: ", cipher)
-        for i in range(len(cipher)):
-            cipher[i] = int(cipher[i])
-        message = rsa.decode_decrypt_message(cipher, d, ns)
-        print("decrypt using d = : ",d, " and n = ", ns)
+        message = ""
+        while(cipher != '\n'):
+            cipher = int(cipher)
+            message += rsa.decode_decrypt_group_message(cipher, d, ns)
+            cipher = receiver.recv(1024)
+            cipher = cipher.decode()
 
-        # TODO: apply the decryption function to the received message
         print(message)
 
 
