@@ -166,13 +166,13 @@ def generate_pq_for_n_bits(large_n_bits):
     n_bits_max = 0
     if(large_n_bits == True):
         n_bits_min = 27
-        n_bits_max = 512
+        n_bits_max = 1024
         #n_bits = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
     else:
         n_bits_min = 27
         n_bits_max = 64
         #n_bits = [8, 16, 32, 64]
-    for bit in range(n_bits_min, n_bits_max, 2):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
+    for bit in range(n_bits_min, n_bits_max):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
         p = 4
         q = 4
         mini = 2 ** (bit - 1)
