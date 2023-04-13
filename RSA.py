@@ -5,6 +5,7 @@ import numpy as np
 import os
 import time
 import matplotlib.pyplot as plt
+import sys
 
 
 
@@ -36,13 +37,36 @@ def multiplicative_inverse(e, phi):
     return d
 
 
+def min_limit_for_n():
+    # as we know that n must be greater than m (message)
+    # we can calculate the minimum value of n by calculating the max value of m
+    # and as we know the max value of m is the max value of a group consisting of spaces (36)
+    # so apply the formula group = sum(37^i) * 36 for i from 4 to 1
+    mini = 0
+    for i in range(0, 5):
+        mini += 37**i
+    mini *= 36
+    return mini
+
+
+def min_limit_for_p_q():
+    # hint: min n is not a product of two primes as it is the max value of m (just only) (i.e., min n is the next product of two primes after this min_n)
+    min_n = min_limit_for_n()
+    fact_n = factorize_n(min_n)
+    facts = []
+    for i in range (len(fact_n)):
+        facts.append(fact_n.popitem()[0])
+    return np.max(facts)
+
+
 def generate_keys():
     p = 4
     q = 4
+    min_q_p = min_limit_for_p_q()
     while(sp.isprime(p) == False):
-        p = rd.randint(69343956, 69343956*1000000)  # best min number for p & q to be secure enough --> 1048576
+        p = rd.randint(min_q_p, sys.maxsize)
     while(sp.isprime(q) == False or p == q):
-        q = rd.randint(69343956, 69343956*1000000)
+        q = rd.randint(min_q_p, sys.maxsize)
     n = p * q
     phi = (p - 1) * (q - 1)
     
@@ -97,22 +121,6 @@ def encode_encrypt_message(message, e, n):
     #encoded_message.__str__()
     return encoded_message
 
-
-def decode_decrypt_message(encoded_message, d, n):
-    message = ""
-    encoded_message[0:] = encoded_message[0:][::-1]
-    for group in encoded_message:
-        group = decrypt(group, d, n)
-        for i in range(5):
-            num = group % 37
-            group = group // 37
-            if(num == 36):
-                message = ' ' + message
-            elif(num < 10):
-                message = chr(ord('0') + num) + message
-            else:
-                message = chr(ord('a') + num - 10) + message
-    return message
 
 def decode_decrypt_group_message(group, d, n):
     message = ""
@@ -170,7 +178,7 @@ def generate_pq_for_n_bits(large_n_bits):
         #n_bits = [8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
     else:
         n_bits_min = 27
-        n_bits_max = 64
+        n_bits_max = 128
         #n_bits = [8, 16, 32, 64]
     for bit in range(n_bits_min, n_bits_max):  #, 32, 64, 128, 256, 512, 1024, 2048, 4096
         p = 4
