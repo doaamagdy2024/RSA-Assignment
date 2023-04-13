@@ -49,7 +49,7 @@ def receive_message(sock, semaphore):
     while True:
         cipher = sock.recv(1024)
         cipher = cipher.decode()
-        message = ""
+        message = "> "
         while(cipher != '\n'):
             cipher = int(cipher)
             message += rsa.decode_decrypt_group_message(cipher, d, nr)
@@ -65,7 +65,6 @@ if __name__ == "__main__":
     # one for sending messages
     # one for receiving messages
 
-    print('the generated keys are: e = ', er, " d = ",  d, " nr = ", nr)
     sock = initiate_connection()
 
     # semaphore = threading.Semaphore(1)
